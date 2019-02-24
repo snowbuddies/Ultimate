@@ -38,7 +38,6 @@ import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
 
 
 
-
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity{
@@ -61,11 +60,11 @@ public class MainActivity extends AppCompatActivity{
 
         Mapbox.getInstance(this, "pk.eyJ1IjoiYWN2aW9sYSIsImEiOiJjanNoODJrY2owZ3B2NDRxemFuZWEzc2hrIn0.FI4zY9I5DT6fdSOkg0knqg");
 
-//        MapboxNavigation navigation = new MapboxNavigation(this, "pk.eyJ1IjoiYWN2aW9sYSIsImEiOiJjanNoODJrY2owZ3B2NDRxemFuZWEzc2hrIn0.FI4zY9I5DT6fdSOkg0knqg");
+        MapboxNavigation navigation = new MapboxNavigation(this, "pk.eyJ1IjoiYWN2aW9sYSIsImEiOiJjanNoODJrY2owZ3B2NDRxemFuZWEzc2hrIn0.FI4zY9I5DT6fdSOkg0knqg");
 
         setContentView(R.layout.activity_main);
 
-        InitializeApp();
+
 
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
@@ -83,7 +82,12 @@ public class MainActivity extends AppCompatActivity{
                     }
                 });
             }
+
+
+
         });
+
+        InitializeApp();
 
 
 
