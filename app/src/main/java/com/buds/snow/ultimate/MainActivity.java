@@ -6,8 +6,14 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import java.util.List;
 
+import com.mapbox.api.geocoding.v5.MapboxGeocoding;
+import com.mapbox.api.geocoding.v5.models.CarmenFeature;
+import com.mapbox.api.geocoding.v5.models.GeocodingResponse;
 import com.mapbox.geojson.Point;
 
 
@@ -22,12 +28,15 @@ import com.mapbox.mapboxsdk.maps.Style;
 
 //navigation:
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class MainActivity extends AppCompatActivity{
 
 
-    private Button t;
+    private Button button;
     private DirectionsRoute currentRoute;
     private MapboxMap mapboxMap;
     private MapView mapView;
@@ -59,12 +68,16 @@ public class MainActivity extends AppCompatActivity{
                 });
             }
         });
-        //InitializeApp();
+        InitializeApp();
+
 
 
 
     }
 
+
+
+    //NAVIGATION: NAVIGATION UI IMPLEMENTATION IS INCOMPATIBLE WITH CURRENT ANDROID APPCOMPAT
 //
 //
 //    @Override
@@ -169,103 +182,90 @@ public class MainActivity extends AppCompatActivity{
 
 
 
+    private void InitializeApp(){
+
+
+        button = (Button) findViewById(R.id.b);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                try {
+                    sLoc = st.getText().toString();
+                    eLoc = ed.getText().toString();
+                }catch(NullPointerException e){
+                    return;
+                }
+
+                MapboxGeocoding s = MapboxGeocoding.builder()
+                        .accessToken("pk.eyJ1IjoiYWN2aW9sYSIsImEiOiJjanNoODJrY2owZ3B2NDRxemFuZWEzc2hrIn0.FI4zY9I5DT6fdSOkg0knqg")
+                        .query(sLoc)
+                        .build();
+
+                MapboxGeocoding e = MapboxGeocoding.builder()
+                        .accessToken("pk.eyJ1IjoiYWN2aW9sYSIsImEiOiJjanNoODJrY2owZ3B2NDRxemFuZWEzc2hrIn0.FI4zY9I5DT6fdSOkg0knqg")
+                        .query(eLoc)
+                        .build();
 
 
 
+                s.enqueueCall(new Callback<GeocodingResponse>() {
+                    @Override
+                    public void onResponse(Call<GeocodingResponse> call, Response<GeocodingResponse> response) {
+                        List<CarmenFeature> results = response.body().features();
+
+
+                        if(results.size() > 0){
+                            Point firstResP = results.get(0).center();
+                            start = firstResP;
+                            Log.d("response", "onResponse: " + firstResP.toString());
+                        } else {
+                            Log.d("response", "onResponse: No resp.");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<GeocodingResponse> call, Throwable t) {
+                        t.printStackTrace();
+                    }
+                });
 
 
 
+                e.enqueueCall(new Callback<GeocodingResponse>() {
+                    @Override
+                    public void onResponse(Call<GeocodingResponse> call, Response<GeocodingResponse> response) {
+                        List<CarmenFeature> results = response.body().features();
+
+
+                        if(results.size() > 0){
+                            Point firstResP = results.get(0).center();
+                            end = firstResP;
+                            Log.d("response", "onResponse: " + firstResP.toString());
+                        } else {
+                            Log.d("response", "onResponse: No resp.");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<GeocodingResponse> call, Throwable t) {
+                        t.printStackTrace();
+                    }
+                });
+
+                System.out.println("START: " + start.latitude() + ", " + start.longitude());
+                System.out.println("END: " + end.latitude() + ", " + end.longitude());
+                //getRoute(start,end);
+
+
+            }
 
 
 
+        });
 
 
 
-
-
-//
-//    private void InitializeApp(){
-//
-//
-//        Button button = (Button) findViewById(R.id.b);
-//        button.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-//
-//                try {
-//                    sLoc = st.getText().toString();
-//                    eLoc = ed.getText().toString();
-//                }catch(NullPointerException e){
-//                    return;
-//                }
-//
-//                MapboxGeocoding s = MapboxGeocoding.builder()
-//                        .accessToken("pk.eyJ1IjoiYWN2aW9sYSIsImEiOiJjanNoODJrY2owZ3B2NDRxemFuZWEzc2hrIn0.FI4zY9I5DT6fdSOkg0knqg")
-//                        .query(sLoc)
-//                        .build();
-//
-//                MapboxGeocoding e = MapboxGeocoding.builder()
-//                        .accessToken("pk.eyJ1IjoiYWN2aW9sYSIsImEiOiJjanNoODJrY2owZ3B2NDRxemFuZWEzc2hrIn0.FI4zY9I5DT6fdSOkg0knqg")
-//                        .query(eLoc)
-//                        .build();
-//
-//
-//
-//                s.enqueueCall(new Callback<GeocodingResponse>() {
-//                    @Override
-//                    public void onResponse(Call<GeocodingResponse> call, Response<GeocodingResponse> response) {
-//                        List<CarmenFeature> results = response.body().features();
-//
-//
-//                        if(results.size() > 0){
-//                            Point firstResP = results.get(0).center();
-//                            start = firstResP;
-//                            Log.d("response", "onResponse: " + firstResP.toString());
-//                        } else {
-//                            Log.d("response", "onResponse: No resp.");
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<GeocodingResponse> call, Throwable t) {
-//                        t.printStackTrace();
-//                    }
-//                });
-//
-//
-//
-//                e.enqueueCall(new Callback<GeocodingResponse>() {
-//                    @Override
-//                    public void onResponse(Call<GeocodingResponse> call, Response<GeocodingResponse> response) {
-//                        List<CarmenFeature> results = response.body().features();
-//
-//
-//                        if(results.size() > 0){
-//                            Point firstResP = results.get(0).center();
-//                            end = firstResP;
-//                            Log.d("response", "onResponse: " + firstResP.toString());
-//                        } else {
-//                            Log.d("response", "onResponse: No resp.");
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<GeocodingResponse> call, Throwable t) {
-//                        t.printStackTrace();
-//                    }
-//                });
-//
-//                getRoute(start,end);
-//
-//
-//            }
-//
-//
-//
-//        });
-//
-//
-//
-//    }
+    }
 
 
 
